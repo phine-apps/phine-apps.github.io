@@ -1,10 +1,9 @@
-import React, { useEffect, useRef, useMemo } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import {
   motion,
   useMotionValue,
   useTransform,
   useSpring,
-  AnimatePresence,
   animate,
 } from "framer-motion";
 
@@ -199,11 +198,117 @@ const PhiSymbol = ({ progress, rawProgress, color = "white", size = 180 }) => {
   );
 };
 
+// --- Sidebark Showcase Component (Sequence) ---
+const SidebarkShowcase = ({ isIntroDone }) => (
+  <motion.div
+    layout
+    initial={{ opacity: 0 }}
+    animate={{ opacity: 1 }}
+    transition={{ duration: 1 }}
+    className={`absolute z-[60] flex flex-col ${
+      isIntroDone
+        ? "bottom-12 left-12 items-start"
+        : "inset-0 items-center justify-center text-center bg-black/40 backdrop-blur-sm"
+    }`}
+  >
+    <motion.a
+      layout
+      href="https://chromewebstore.google.com/detail/sidebark/foglodkfmhggcmbmodgciegkknpemgcl"
+      target="_blank"
+      rel="noopener noreferrer"
+      className={`group relative border border-white/10 hover:border-white/30 rounded-2xl backdrop-blur-xl transition-all duration-500 hover:shadow-[0_0_30px_rgba(255,255,255,0.05)] ${
+        isIntroDone
+          ? "p-4 flex items-center gap-4 bg-[#0a0f1c]/80 hover:-translate-y-1"
+          : "p-12 flex flex-col items-center gap-6 bg-transparent border-none hover:border-none"
+      }`}
+    >
+      {/* Icon Placeholder */}
+      <motion.div
+        layout
+        className={`rounded-xl overflow-hidden bg-black/50 border border-white/10 flex items-center justify-center shrink-0 ${
+          isIntroDone ? "w-10 h-10" : "w-32 h-32 mb-4"
+        }`}
+      >
+        <img
+          src="/sidebark_icon.png"
+          alt="Sidebark Icon"
+          className="w-full h-full object-cover opacity-90 group-hover:opacity-100 transition-opacity"
+        />
+      </motion.div>
+
+      <div
+        className={`flex flex-col ${isIntroDone ? "text-left" : "items-center"}`}
+      >
+        <motion.div layout className="flex items-center gap-2 mb-2">
+          <span className="px-2 py-0.5 rounded text-[9px] font-bold tracking-widest uppercase bg-emerald-500/20 text-emerald-400 border border-emerald-500/20">
+            Now Available
+          </span>
+        </motion.div>
+
+        <motion.h3
+          layout
+          className={`font-light tracking-tight text-white group-hover:text-emerald-300 transition-colors ${
+            isIntroDone ? "text-xl" : "text-6xl mb-4"
+          }`}
+        >
+          Sidebark <span className="text-[0.5em] align-middle ml-2">🐕</span>
+        </motion.h3>
+
+        {!isIntroDone && (
+          <motion.p
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.5 }}
+            className="text-lg text-gray-300 font-light max-w-2xl leading-relaxed mb-8"
+          >
+            The best way to use ChatGPT, Gemini, or ANY other site alongside
+            your browsing.
+            <br />A universal sidebar that keeps your tools open and your flow
+            uninterrupted.
+          </motion.p>
+        )}
+
+        {/* Minimized Description */}
+        {isIntroDone && (
+          <motion.p
+            layout
+            className="text-[10px] text-gray-400 font-light leading-relaxed max-w-[150px]"
+          >
+            Your browser's new best friend.
+          </motion.p>
+        )}
+
+        <div
+          className={`flex items-center gap-2 text-[10px] tracking-widest uppercase text-white/60 group-hover:text-white transition-colors mt-2 ${!isIntroDone && "border border-white/20 px-6 py-3 rounded-full hover:bg-white/10"}`}
+        >
+          <span>
+            {isIntroDone ? "View on Store" : "Get it on Chrome Web Store"}
+          </span>
+          <span className="group-hover:translate-x-1 transition-transform">
+            →
+          </span>
+        </div>
+      </div>
+    </motion.a>
+  </motion.div>
+);
+
 export default function App() {
+  const [introDone, setIntroDone] = useState(false);
   const progress = useMotionValue(0);
-  // Optimized spring for cinematic fluidity without stutter
   const smoothProgress = useSpring(progress, { stiffness: 40, damping: 35 });
 
+  // Sequence Timer
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setIntroDone(true);
+    }, 4500); // 4.5 seconds for the intro
+
+    return () => clearTimeout(timer);
+  }, []);
+
+  // Start Animation logic only after intro is done?
+  // Ideally it runs in background but visible only after fade in.
   useEffect(() => {
     const controls = animate(progress, 1, {
       duration: 30,
@@ -226,10 +331,8 @@ export default function App() {
     [0, -60, -60, -25, -25, 0],
   );
 
-  // Unified Text Weights
   const unifiedWeight = "font-light";
 
-  // Alignment: Synchronized "The" opacity and positioning
   const theOpacity = useTransform(
     progress,
     [0.72, 0.8, 0.88, 0.93],
@@ -237,7 +340,6 @@ export default function App() {
   );
   const theTranslateX = useTransform(smoothProgress, [0.72, 0.8], [-30, 0]);
 
-  // "ne" opacity and positioning
   const neOpacity = useTransform(
     progress,
     [0.18, 0.3, 0.88, 0.93],
@@ -249,7 +351,6 @@ export default function App() {
     [40, -12, -12, 10],
   );
 
-  // Narrative Texts Fade timing
   const originTextOp = useTransform(
     progress,
     [0.14, 0.2, 0.24, 0.3],
@@ -266,8 +367,6 @@ export default function App() {
     [0, 1, 1, 0],
   );
 
-  // FINAL DEFENSE: The blackout covering loop jump
-  // Reduced fade-in time for better initial loading experience
   const blackOutOpacity = useTransform(
     progress,
     [0, 0.05, 0.94, 0.98, 1],
@@ -276,117 +375,125 @@ export default function App() {
 
   return (
     <div className="bg-[#00050d] h-screen w-full overflow-hidden text-white font-sans relative">
-      {/* Background Ambience */}
-      <StarField />
-      <div className="absolute inset-0 pointer-events-none z-0">
-        <div className="absolute inset-0 bg-gradient-to-b from-transparent via-[#001b44]/5 to-transparent" />
-        <motion.div
-          style={{
-            opacity: useTransform(
-              progress,
-              [0, 0.12, 0.5, 0.92],
-              [0, 0.01, 0.03, 0],
-            ),
-            x: useTransform(smoothProgress, [0, 1], [25, -25]),
-          }}
-          className="text-[35vw] font-bold whitespace-nowrap absolute top-1/2 -translate-y-1/2 select-none"
-        >
-          PHINE PHINE PHINE
-        </motion.div>
-      </div>
-
-      {/* Main Visual Core: Perfectly aligned "The Φne" */}
-      <div className="absolute inset-0 flex items-center justify-center pointer-events-none z-40">
-        <motion.div
-          style={{ scale: logoScale, x: phiCenterOffset }}
-          className="flex items-center gap-0" // Using items-center with manual baseline adjustment
-        >
-          <motion.div
-            style={{
-              opacity: theOpacity,
-              x: theTranslateX,
-            }}
-            // Correcting visual baseline height to match Phi's circle
-            className={`text-[95px] ${unifiedWeight} tracking-tighter leading-none mr-8 translate-y-[8px]`}
-          >
-            The
-          </motion.div>
-
-          <PhiSymbol progress={smoothProgress} rawProgress={progress} />
-
-          <motion.div
-            style={{
-              opacity: neOpacity,
-              x: neTranslateX,
-            }}
-            // Correcting visual baseline height to match Phi's circle
-            className={`text-[140px] ${unifiedWeight} tracking-tighter leading-none -ml-4 translate-y-[1px]`}
-          >
-            ne
-          </motion.div>
-        </motion.div>
-      </div>
-
-      {/* Narrative Overlay */}
-      <div className="absolute inset-0 z-50 pointer-events-none px-20">
-        <motion.div
-          style={{ opacity: originTextOp }}
-          className="absolute left-20 top-1/4 max-w-lg"
-        >
-          <h2 className="text-[10px] tracking-[2em] uppercase opacity-30 mb-6 font-bold">
-            01 / Origin
-          </h2>
-          <h3 className="text-6xl font-extralight mb-6 tracking-tighter">
-            Zero <span className="opacity-30">to</span> One.
-          </h3>
-          <p className="text-lg opacity-30 font-light leading-relaxed">
-            Where the void meets will.
-            <br />A convergence that defines the first line of creation.
-          </p>
-        </motion.div>
-
-        <motion.div
-          style={{ opacity: visionTextOp }}
-          className="absolute right-20 bottom-1/4 text-right max-w-xl"
-        >
-          <h2 className="text-[10px] tracking-[2em] uppercase opacity-30 mb-6 font-bold">
-            02 / Perspective
-          </h2>
-          <h3 className="text-6xl font-extralight mb-6 tracking-tighter">
-            Planetary Sight.
-          </h3>
-          <p className="text-lg opacity-30 font-light leading-relaxed">
-            Elevating vision beyond boundaries.
-            <br />
-            Observing the universal rhythm from the silent stars.
-          </p>
-        </motion.div>
-
-        <motion.div
-          style={{ opacity: identitySubTextOp }}
-          className="absolute inset-0 flex flex-col items-center justify-end pb-32"
-        >
-          <div className="text-center">
-            <p className="text-xs font-light opacity-30 tracking-[0.8em] uppercase">
-              Alone in the dark, shining for the all.
-            </p>
-          </div>
-        </motion.div>
-      </div>
-
-      {/* UI Decors */}
-      <div className="absolute bottom-10 left-10 z-50 flex items-center gap-4 opacity-20">
-        <div className="w-10 h-[1px] bg-white" />
-        <span className="text-[8px] tracking-[0.4em] uppercase">
-          Continuous Loop // PHINE Eternal
-        </span>
-      </div>
-
-      {/* Loop Blackout Mask */}
+      {/* State-controlled visibility wrapper for Main Content */}
       <motion.div
-        style={{ opacity: blackOutOpacity }}
-        className="absolute inset-0 bg-[#00050d] pointer-events-none z-[100]"
-      />
+        initial={{ opacity: 0 }}
+        animate={{ opacity: introDone ? 1 : 0 }}
+        transition={{ duration: 2, delay: 0.5 }}
+        className="absolute inset-0"
+      >
+        <StarField />
+        <div className="absolute inset-0 pointer-events-none z-0">
+          <div className="absolute inset-0 bg-gradient-to-b from-transparent via-[#001b44]/5 to-transparent" />
+          <motion.div
+            style={{
+              opacity: useTransform(
+                progress,
+                [0, 0.12, 0.5, 0.92],
+                [0, 0.01, 0.03, 0],
+              ),
+              x: useTransform(smoothProgress, [0, 1], [25, -25]),
+            }}
+            className="text-[35vw] font-bold whitespace-nowrap absolute top-1/2 -translate-y-1/2 select-none"
+          >
+            PHINE PHINE PHINE
+          </motion.div>
+        </div>
+
+        {/* Main Visual Core */}
+        <div className="absolute inset-0 flex items-center justify-center pointer-events-none z-40">
+          <motion.div
+            style={{ scale: logoScale, x: phiCenterOffset }}
+            className="flex items-center gap-0"
+          >
+            <motion.div
+              style={{
+                opacity: theOpacity,
+                x: theTranslateX,
+              }}
+              className={`text-[95px] ${unifiedWeight} tracking-tighter leading-none mr-8 translate-y-[8px]`}
+            >
+              The
+            </motion.div>
+
+            <PhiSymbol progress={smoothProgress} rawProgress={progress} />
+
+            <motion.div
+              style={{
+                opacity: neOpacity,
+                x: neTranslateX,
+              }}
+              className={`text-[140px] ${unifiedWeight} tracking-tighter leading-none -ml-4 translate-y-[1px]`}
+            >
+              ne
+            </motion.div>
+          </motion.div>
+        </div>
+
+        {/* Narrative Overlay */}
+        <div className="absolute inset-0 z-50 pointer-events-none px-20">
+          <motion.div
+            style={{ opacity: originTextOp }}
+            className="absolute left-20 top-1/4 max-w-lg"
+          >
+            <h2 className="text-[10px] tracking-[2em] uppercase opacity-30 mb-6 font-bold">
+              01 / Origin
+            </h2>
+            <h3 className="text-6xl font-extralight mb-6 tracking-tighter">
+              Zero <span className="opacity-30">to</span> One.
+            </h3>
+            <p className="text-lg opacity-30 font-light leading-relaxed">
+              Where the void meets will.
+              <br />A convergence that defines the first line of creation.
+            </p>
+          </motion.div>
+
+          <motion.div
+            style={{ opacity: visionTextOp }}
+            className="absolute right-20 bottom-1/4 text-right max-w-xl"
+          >
+            <h2 className="text-[10px] tracking-[2em] uppercase opacity-30 mb-6 font-bold">
+              02 / Perspective
+            </h2>
+            <h3 className="text-6xl font-extralight mb-6 tracking-tighter">
+              Planetary Sight.
+            </h3>
+            <p className="text-lg opacity-30 font-light leading-relaxed">
+              Elevating vision beyond boundaries.
+              <br />
+              Observing the universal rhythm from the silent stars.
+            </p>
+          </motion.div>
+
+          <motion.div
+            style={{ opacity: identitySubTextOp }}
+            className="absolute inset-0 flex flex-col items-center justify-end pb-32"
+          >
+            <div className="text-center">
+              <p className="text-xs font-light opacity-30 tracking-[0.8em] uppercase">
+                Alone in the dark, shining for the all.
+              </p>
+            </div>
+          </motion.div>
+        </div>
+
+        {/* Loop Blackout Mask */}
+        <motion.div
+          style={{ opacity: blackOutOpacity }}
+          className="absolute inset-0 bg-[#00050d] pointer-events-none z-[100]"
+        />
+
+        {/* Decor - Right Bottom now meant for something else? kept blank for now to avoid cluttering next to Sidebark if it was on right, but moved to left now */}
+        <div className="absolute bottom-12 right-12 z-50 flex flex-col items-end opacity-20">
+          <span className="text-[8px] tracking-[0.4em] uppercase">
+            Phine Apps Collection
+          </span>
+          <div className="w-10 h-[1px] bg-white mt-2" />
+        </div>
+      </motion.div>
+
+      {/* Sidebark Showcase - Sitting on top of everything */}
+      <SidebarkShowcase isIntroDone={introDone} />
     </div>
   );
 }
