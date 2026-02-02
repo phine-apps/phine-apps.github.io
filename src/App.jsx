@@ -5,7 +5,49 @@ import {
   useTransform,
   useSpring,
   animate,
+  AnimatePresence,
 } from "framer-motion";
+
+// --- Product Data Configuration ---
+const PRODUCTS = [
+  {
+    id: "tube_zenify",
+    name: "TubeZenify",
+    icon: "/tube_zenify_icon.png",
+    nameExtra: "🧘",
+    badge: "New Release",
+    badgeType: "sky",
+    description: (
+      <>
+        Transform your YouTube sidebar into a "Zen" interface.
+        <br />
+        Organize subscriptions, focus on what matters, and sync across devices.
+      </>
+    ),
+    shortDescription: "Zen mode for YouTube.",
+    link: "https://chrome.google.com/webstore/detail/ifgpjpaahjajngacmophnepamkppgacm",
+    linkText: "Get it on Chrome Web Store",
+  },
+  {
+    id: "sidebark",
+    name: "Sidebark",
+    icon: "/sidebark_icon.png",
+    nameExtra: "🐕",
+    badge: "Now Available",
+    badgeType: "emerald",
+    description: (
+      <>
+        The best way to use ChatGPT, Gemini, or ANY other site alongside your
+        browsing.
+        <br />A universal sidebar that keeps your tools open and your flow
+        uninterrupted.
+      </>
+    ),
+    shortDescription: "Your browser's new best friend.",
+    link: "https://chromewebstore.google.com/detail/sidebark/foglodkfmhggcmbmodgciegkknpemgcl",
+    linkText: "Get it on Chrome Web Store",
+  },
+];
 
 // --- StarField Background Component ---
 const StarField = () => {
@@ -86,7 +128,6 @@ const PhiSymbol = ({ progress, rawProgress, color = "white", size = 180 }) => {
 
   const rotationY = useTransform(progress, [0, 1], [0, 1080]);
 
-  // Adjusted visibility for shorter lingering (Reset starts at 0.94)
   const phiFinalOpacity = useTransform(
     rawProgress,
     [0, 0.12, 0.93, 0.95, 1],
@@ -198,128 +239,172 @@ const PhiSymbol = ({ progress, rawProgress, color = "white", size = 180 }) => {
   );
 };
 
-// --- Sidebark Showcase Component (Sequence) ---
-const SidebarkShowcase = ({ isIntroDone }) => (
-  <motion.div
-    layout
-    initial={{ opacity: 0 }}
-    animate={{ opacity: 1 }}
-    transition={{ duration: 1 }}
-    className={`absolute z-[60] flex flex-col ${
-      isIntroDone
-        ? "bottom-12 left-12 items-start"
-        : "inset-0 items-center justify-center text-center bg-black/40 backdrop-blur-sm"
-    }`}
-  >
-    <motion.a
+// --- Product Showcase Component (Reusable) ---
+const ProductShowcase = ({ isActive, product, index }) => {
+  const [isIntroMode, setIsIntroMode] = useState(isActive);
+
+  useEffect(() => {
+    if (isActive) {
+      setIsIntroMode(true);
+      const timer = setTimeout(() => {
+        setIsIntroMode(false);
+      }, 5500); // 5.5 seconds Intro (Extended from 4.5s)
+      return () => clearTimeout(timer);
+    } else {
+      setIsIntroMode(false);
+    }
+  }, [isActive]);
+
+  const badgeColors =
+    product.badgeType === "emerald"
+      ? "bg-emerald-500/20 text-emerald-400 border-emerald-500/20"
+      : "bg-sky-500/20 text-sky-400 border-sky-500/20";
+
+  const hoverText =
+    product.badgeType === "emerald"
+      ? "group-hover:text-emerald-300"
+      : "group-hover:text-sky-300";
+
+  // Position logic
+  const dockedBottomClass = !isActive ? "bottom-12" : "bottom-[178px]";
+
+  // z-Index
+  const zClass = isActive ? "z-[70]" : "z-[60]";
+
+  return (
+    <motion.div
       layout
-      href="https://chromewebstore.google.com/detail/sidebark/foglodkfmhggcmbmodgciegkknpemgcl"
-      target="_blank"
-      rel="noopener noreferrer"
-      className={`group relative border border-white/10 hover:border-white/30 rounded-2xl backdrop-blur-xl transition-all duration-500 hover:shadow-[0_0_30px_rgba(255,255,255,0.05)] ${
-        isIntroDone
-          ? "p-4 flex items-center gap-4 bg-[#0a0f1c]/80 hover:-translate-y-1"
-          : "p-12 flex flex-col items-center gap-6 bg-transparent border-none hover:border-none"
+      transition={{ duration: 1, ease: "easeInOut" }}
+      // Use explicit style for width to ensure clean interpolation
+      style={{
+        width: isIntroMode ? "auto" : 300,
+        height: isIntroMode ? "auto" : 130,
+      }}
+      className={`absolute ${zClass} flex flex-col ${
+        isIntroMode
+          ? "inset-0 items-center justify-center text-center bg-black/40 backdrop-blur-sm"
+          : `${dockedBottomClass} left-12 items-start`
       }`}
     >
-      {/* Icon Placeholder */}
-      <motion.div
+      <motion.a
         layout
-        className={`rounded-xl overflow-hidden bg-black/50 border border-white/10 flex items-center justify-center shrink-0 ${
-          isIntroDone ? "w-10 h-10" : "w-32 h-32 mb-4"
+        href={product.link}
+        target="_blank"
+        rel="noopener noreferrer"
+        className={`group relative border border-white/10 hover:border-white/30 rounded-2xl backdrop-blur-xl transition-all duration-500 hover:shadow-[0_0_30px_rgba(255,255,255,0.05)] ${
+          !isIntroMode
+            ? "p-4 flex items-center gap-4 bg-[#0a0f1c]/80 hover:-translate-y-1 w-full h-full"
+            : "p-12 flex flex-col items-center gap-6 bg-transparent border-none hover:border-none"
         }`}
       >
-        <img
-          src="/sidebark_icon.png"
-          alt="Sidebark Icon"
-          className="w-full h-full object-cover opacity-90 group-hover:opacity-100 transition-opacity"
-        />
-      </motion.div>
-
-      <div
-        className={`flex flex-col ${isIntroDone ? "text-left" : "items-center"}`}
-      >
-        <motion.div layout className="flex items-center gap-2 mb-2">
-          <span className="px-2 py-0.5 rounded text-[9px] font-bold tracking-widest uppercase bg-emerald-500/20 text-emerald-400 border border-emerald-500/20">
-            Now Available
-          </span>
-        </motion.div>
-
-        <motion.h3
+        <motion.div
           layout
-          className={`font-light tracking-tight text-white group-hover:text-emerald-300 transition-colors ${
-            isIntroDone ? "text-xl" : "text-6xl mb-4"
+          className={`rounded-xl overflow-hidden bg-black/50 border border-white/10 flex items-center justify-center shrink-0 ${
+            !isIntroMode ? "w-10 h-10" : "w-32 h-32 mb-4"
           }`}
         >
-          Sidebark <span className="text-[0.5em] align-middle ml-2">🐕</span>
-        </motion.h3>
-
-        {!isIntroDone && (
-          <motion.p
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.5 }}
-            className="text-lg text-gray-300 font-light max-w-2xl leading-relaxed mb-8"
-          >
-            The best way to use ChatGPT, Gemini, or ANY other site alongside
-            your browsing.
-            <br />A universal sidebar that keeps your tools open and your flow
-            uninterrupted.
-          </motion.p>
-        )}
-
-        {/* Minimized Description */}
-        {isIntroDone && (
-          <motion.p
-            layout
-            className="text-[10px] text-gray-400 font-light leading-relaxed max-w-[150px]"
-          >
-            Your browser's new best friend.
-          </motion.p>
-        )}
+          <img
+            src={product.icon}
+            alt={`${product.name} Icon`}
+            className="w-full h-full object-cover opacity-90 group-hover:opacity-100 transition-opacity"
+          />
+        </motion.div>
 
         <div
-          className={`flex items-center gap-2 text-[10px] tracking-widest uppercase text-white/60 group-hover:text-white transition-colors mt-2 ${!isIntroDone && "border border-white/20 px-6 py-3 rounded-full hover:bg-white/10"}`}
+          className={`flex flex-col flex-1 ${!isIntroMode ? "text-left" : "items-center"}`}
         >
-          <span>
-            {isIntroDone ? "View on Store" : "Get it on Chrome Web Store"}
-          </span>
-          <span className="group-hover:translate-x-1 transition-transform">
-            →
-          </span>
+          <motion.div layout className="flex items-center gap-2 mb-2">
+            <span
+              className={`px-2 py-0.5 rounded text-[9px] font-bold tracking-widest uppercase border ${badgeColors}`}
+            >
+              {product.badge}
+            </span>
+          </motion.div>
+
+          <motion.h3
+            layout
+            className={`font-light tracking-tight text-white ${hoverText} transition-colors ${
+              !isIntroMode ? "text-xl" : "text-6xl mb-4"
+            }`}
+          >
+            {product.name}{" "}
+            <span className="text-[0.5em] align-middle ml-2">
+              {product.nameExtra}
+            </span>
+          </motion.h3>
+
+          {isIntroMode && (
+            <motion.p
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.5 }}
+              className="text-lg text-gray-300 font-light max-w-2xl leading-relaxed mb-8"
+            >
+              {product.description}
+            </motion.p>
+          )}
+
+          {!isIntroMode && (
+            <motion.p
+              layout
+              className="text-[10px] text-gray-400 font-light leading-relaxed truncate w-full"
+            >
+              {product.shortDescription}
+            </motion.p>
+          )}
+
+          <div
+            className={`flex items-center gap-2 text-[10px] tracking-widest uppercase text-white/60 group-hover:text-white transition-colors mt-2 ${isIntroMode && "border border-white/20 px-6 py-3 rounded-full hover:bg-white/10"}`}
+          >
+            <span>{!isIntroMode ? "View on Store" : product.linkText}</span>
+            <span className="group-hover:translate-x-1 transition-transform">
+              →
+            </span>
+          </div>
         </div>
-      </div>
-    </motion.a>
-  </motion.div>
-);
+      </motion.a>
+    </motion.div>
+  );
+};
 
 export default function App() {
-  const [introDone, setIntroDone] = useState(false);
+  const [initialLoading, setInitialLoading] = useState(true);
+  const [loopCount, setLoopCount] = useState(0);
   const progress = useMotionValue(0);
   const smoothProgress = useSpring(progress, { stiffness: 40, damping: 35 });
 
-  // Sequence Timer
+  // Initial fade-in
   useEffect(() => {
     const timer = setTimeout(() => {
-      setIntroDone(true);
-    }, 4500); // 4.5 seconds for the intro
-
+      setInitialLoading(false);
+    }, 500);
     return () => clearTimeout(timer);
   }, []);
 
-  // Start Animation logic only after intro is done?
-  // Ideally it runs in background but visible only after fade in.
+  // Animation Loop Logic
   useEffect(() => {
-    const controls = animate(progress, 1, {
-      duration: 30,
-      repeat: Infinity,
-      repeatType: "loop",
-      ease: "linear",
-    });
-    return () => controls.stop();
-  }, []);
+    let controls;
+    const runLoop = async () => {
+      progress.set(0);
+      controls = animate(progress, 1, {
+        duration: 30,
+        ease: "linear",
+      });
 
-  // Synchronized Scale and Offset logic to eliminate kakutsuki
+      try {
+        await controls.finished;
+        setLoopCount((prev) => prev + 1);
+        runLoop();
+      } catch (e) {
+        // Animation stopped
+      }
+    };
+
+    runLoop();
+    return () => controls?.stop();
+  }, [progress]);
+
+  // Synchronized Scale and Offset logic
   const logoScale = useTransform(
     smoothProgress,
     [0.12, 0.22, 0.72, 0.82, 0.94],
@@ -332,14 +417,12 @@ export default function App() {
   );
 
   const unifiedWeight = "font-light";
-
   const theOpacity = useTransform(
     progress,
     [0.72, 0.8, 0.88, 0.93],
     [0, 1, 1, 0],
   );
   const theTranslateX = useTransform(smoothProgress, [0.72, 0.8], [-30, 0]);
-
   const neOpacity = useTransform(
     progress,
     [0.18, 0.3, 0.88, 0.93],
@@ -350,7 +433,6 @@ export default function App() {
     [0.18, 0.32, 0.88, 0.93],
     [40, -12, -12, 10],
   );
-
   const originTextOp = useTransform(
     progress,
     [0.14, 0.2, 0.24, 0.3],
@@ -366,7 +448,6 @@ export default function App() {
     [0.75, 0.85, 0.9, 0.93],
     [0, 1, 1, 0],
   );
-
   const blackOutOpacity = useTransform(
     progress,
     [0, 0.05, 0.94, 0.98, 1],
@@ -375,11 +456,10 @@ export default function App() {
 
   return (
     <div className="bg-[#00050d] h-screen w-full overflow-hidden text-white font-sans relative">
-      {/* State-controlled visibility wrapper for Main Content */}
       <motion.div
         initial={{ opacity: 0 }}
-        animate={{ opacity: introDone ? 1 : 0 }}
-        transition={{ duration: 2, delay: 0.5 }}
+        animate={{ opacity: initialLoading ? 0 : 1 }}
+        transition={{ duration: 2 }}
         className="absolute inset-0"
       >
         <StarField />
@@ -407,22 +487,14 @@ export default function App() {
             className="flex items-center gap-0"
           >
             <motion.div
-              style={{
-                opacity: theOpacity,
-                x: theTranslateX,
-              }}
+              style={{ opacity: theOpacity, x: theTranslateX }}
               className={`text-[95px] ${unifiedWeight} tracking-tighter leading-none mr-8 translate-y-[8px]`}
             >
               The
             </motion.div>
-
             <PhiSymbol progress={smoothProgress} rawProgress={progress} />
-
             <motion.div
-              style={{
-                opacity: neOpacity,
-                x: neTranslateX,
-              }}
+              style={{ opacity: neOpacity, x: neTranslateX }}
               className={`text-[140px] ${unifiedWeight} tracking-tighter leading-none -ml-4 translate-y-[1px]`}
             >
               ne
@@ -447,7 +519,6 @@ export default function App() {
               <br />A convergence that defines the first line of creation.
             </p>
           </motion.div>
-
           <motion.div
             style={{ opacity: visionTextOp }}
             className="absolute right-20 bottom-1/4 text-right max-w-xl"
@@ -464,7 +535,6 @@ export default function App() {
               Observing the universal rhythm from the silent stars.
             </p>
           </motion.div>
-
           <motion.div
             style={{ opacity: identitySubTextOp }}
             className="absolute inset-0 flex flex-col items-center justify-end pb-32"
@@ -483,7 +553,7 @@ export default function App() {
           className="absolute inset-0 bg-[#00050d] pointer-events-none z-[100]"
         />
 
-        {/* Decor - Right Bottom now meant for something else? kept blank for now to avoid cluttering next to Sidebark if it was on right, but moved to left now */}
+        {/* Decor */}
         <div className="absolute bottom-12 right-12 z-50 flex flex-col items-end opacity-20">
           <span className="text-[8px] tracking-[0.4em] uppercase">
             Phine Apps Collection
@@ -492,8 +562,15 @@ export default function App() {
         </div>
       </motion.div>
 
-      {/* Sidebark Showcase - Sitting on top of everything */}
-      <SidebarkShowcase isIntroDone={introDone} />
+      {/* Product List - Render ALL products, active one gets focus */}
+      {PRODUCTS.map((product, index) => (
+        <ProductShowcase
+          key={product.id}
+          index={index}
+          product={product}
+          isActive={index === loopCount % PRODUCTS.length}
+        />
+      ))}
     </div>
   );
 }
