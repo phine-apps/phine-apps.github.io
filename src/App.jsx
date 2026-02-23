@@ -11,15 +11,36 @@ import {
 // --- Product Data Configuration ---
 const PRODUCTS = [
   {
+    id: "rich_markdown_diff",
+    name: "Rich Markdown Diff",
+    icon: "/rich_markdown_diff_icon.png",
+
+    badge: "New Release",
+    badgeType: "violet",
+    platform: "VS Code Extension",
+    description: (
+      <>
+        A professional markdown diff for VS Code.
+        <br />
+        Compare files visually with rendered HTML, Git integration, and rich
+        syntax support.
+      </>
+    ),
+    shortDescription: "Visual Markdown diff for VS Code.",
+    link: "https://marketplace.visualstudio.com/items?itemName=phine-apps.rich-markdown-diff",
+    linkText: "Get it on VS Code Marketplace",
+  },
+  {
     id: "tube_zenify",
     name: "TubeZenify",
     icon: "/tube_zenify_icon.png",
-    nameExtra: "🧘",
-    badge: "New Release",
+
+    badge: "Now Available",
     badgeType: "sky",
+    platform: "Chrome Extension",
     description: (
       <>
-        Transform your YouTube sidebar into a "Zen" interface.
+        Transform your YouTube sidebar into a &quot;Zen&quot; interface.
         <br />
         Organize subscriptions, focus on what matters, and sync across devices.
       </>
@@ -32,9 +53,10 @@ const PRODUCTS = [
     id: "sidebark",
     name: "Sidebark",
     icon: "/sidebark_icon.png",
-    nameExtra: "🐕",
+
     badge: "Now Available",
     badgeType: "emerald",
+    platform: "Chrome Extension",
     description: (
       <>
         The best way to use ChatGPT, Gemini, or ANY other site alongside your
@@ -248,92 +270,77 @@ const ProductShowcase = ({ isActive, product, index }) => {
       setIsIntroMode(true);
       const timer = setTimeout(() => {
         setIsIntroMode(false);
-      }, 5500); // 5.5 seconds Intro (Extended from 4.5s)
+      }, 5500);
       return () => clearTimeout(timer);
     } else {
       setIsIntroMode(false);
     }
   }, [isActive]);
 
-  const badgeColors =
-    product.badgeType === "emerald"
-      ? "bg-emerald-500/20 text-emerald-400 border-emerald-500/20"
-      : "bg-sky-500/20 text-sky-400 border-sky-500/20";
+  const badgeColors = {
+    emerald: "bg-emerald-500/20 text-emerald-400 border-emerald-500/20",
+    sky: "bg-sky-500/20 text-sky-400 border-sky-500/20",
+    violet: "bg-violet-500/20 text-violet-400 border-violet-500/20",
+  }[product.badgeType];
 
-  const hoverText =
-    product.badgeType === "emerald"
-      ? "group-hover:text-emerald-300"
-      : "group-hover:text-sky-300";
+  const hoverText = {
+    emerald: "group-hover:text-emerald-300",
+    sky: "group-hover:text-sky-300",
+    violet: "group-hover:text-violet-300",
+  }[product.badgeType];
 
-  // Position logic
-  const dockedBottomClass = !isActive ? "bottom-12" : "bottom-[178px]";
+  // Docked position: 76px card + 10px gap, stacked from bottom
+  const cardHeight = 76;
+  const cardGap = 10;
+  const baseBottom = 48;
+  const dockedBottom = baseBottom + index * (cardHeight + cardGap);
+  const zIndex = isIntroMode ? 70 : 60 - index;
 
-  // z-Index
-  const zClass = isActive ? "z-[70]" : "z-[60]";
-
-  return (
-    <motion.div
-      layout
-      transition={{ duration: 1, ease: "easeInOut" }}
-      // Use explicit style for width to ensure clean interpolation
-      style={{
-        width: isIntroMode ? "auto" : 300,
-        height: isIntroMode ? "auto" : 130,
-      }}
-      className={`absolute ${zClass} flex flex-col ${
-        isIntroMode
-          ? "inset-0 items-center justify-center text-center bg-black/40 backdrop-blur-sm"
-          : `${dockedBottomClass} left-12 items-start`
-      }`}
-    >
-      <motion.a
-        layout
-        href={product.link}
-        target="_blank"
-        rel="noopener noreferrer"
-        className={`group relative border border-white/10 hover:border-white/30 rounded-2xl backdrop-blur-xl transition-all duration-500 hover:shadow-[0_0_30px_rgba(255,255,255,0.05)] ${
-          !isIntroMode
-            ? "p-4 flex items-center gap-4 bg-[#0a0f1c]/80 hover:-translate-y-1 w-full h-full"
-            : "p-12 flex flex-col items-center gap-6 bg-transparent border-none hover:border-none"
-        }`}
+  // --- Fullscreen intro mode ---
+  if (isIntroMode) {
+    return (
+      <motion.div
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        exit={{ opacity: 0 }}
+        transition={{ duration: 0.5 }}
+        style={{ zIndex }}
+        className="absolute inset-0 flex flex-col items-center justify-center text-center bg-black/40 backdrop-blur-sm"
       >
-        <motion.div
-          layout
-          className={`rounded-xl overflow-hidden bg-black/50 border border-white/10 flex items-center justify-center shrink-0 ${
-            !isIntroMode ? "w-10 h-10" : "w-32 h-32 mb-4"
-          }`}
+        <a
+          href={product.link}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="group relative flex flex-col items-center gap-6 p-12 bg-transparent rounded-2xl"
         >
-          <img
-            src={product.icon}
-            alt={`${product.name} Icon`}
-            className="w-full h-full object-cover opacity-90 group-hover:opacity-100 transition-opacity"
-          />
-        </motion.div>
+          <div className="rounded-xl overflow-hidden bg-black/50 border border-white/10 w-32 h-32 mb-4 flex items-center justify-center shrink-0">
+            <img
+              src={product.icon}
+              alt={`${product.name} Icon`}
+              className="w-full h-full object-cover opacity-90 group-hover:opacity-100 transition-opacity"
+            />
+          </div>
 
-        <div
-          className={`flex flex-col flex-1 ${!isIntroMode ? "text-left" : "items-center"}`}
-        >
-          <motion.div layout className="flex items-center gap-2 mb-2">
-            <span
-              className={`px-2 py-0.5 rounded text-[9px] font-bold tracking-widest uppercase border ${badgeColors}`}
+          <div className="flex flex-col items-center">
+            <div className="flex items-center gap-2 mb-2">
+              {product.platform && (
+                <span className="px-2 py-0.5 rounded text-[9px] font-medium tracking-wider uppercase border border-white/15 text-white/50 bg-white/5">
+                  {product.platform}
+                </span>
+              )}
+              <span
+                className={`px-2 py-0.5 rounded text-[9px] font-bold tracking-widest uppercase border ${badgeColors}`}
+              >
+                {product.badge}
+              </span>
+            </div>
+
+            <h3
+              className={`font-light tracking-tight text-white ${hoverText} transition-colors text-6xl mb-4`}
             >
-              {product.badge}
-            </span>
-          </motion.div>
+              {product.name}
+            </h3>
 
-          <motion.h3
-            layout
-            className={`font-light tracking-tight text-white ${hoverText} transition-colors ${
-              !isIntroMode ? "text-xl" : "text-6xl mb-4"
-            }`}
-          >
-            {product.name}{" "}
-            <span className="text-[0.5em] align-middle ml-2">
-              {product.nameExtra}
-            </span>
-          </motion.h3>
-
-          {isIntroMode && (
             <motion.p
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
@@ -342,28 +349,71 @@ const ProductShowcase = ({ isActive, product, index }) => {
             >
               {product.description}
             </motion.p>
-          )}
 
-          {!isIntroMode && (
-            <motion.p
-              layout
-              className="text-[10px] text-gray-400 font-light leading-relaxed truncate w-full"
+            <div className="flex items-center gap-2 text-[10px] tracking-widest uppercase text-white/60 group-hover:text-white transition-colors mt-2 border border-white/20 px-6 py-3 rounded-full hover:bg-white/10">
+              <span>{product.linkText}</span>
+              <span className="group-hover:translate-x-1 transition-transform">
+                →
+              </span>
+            </div>
+          </div>
+        </a>
+      </motion.div>
+    );
+  }
+
+  // --- Docked compact mode ---
+  return (
+    <div
+      style={{
+        position: "absolute",
+        width: 280,
+        height: cardHeight,
+        bottom: dockedBottom,
+        zIndex,
+      }}
+      className="left-4 sm:left-8 md:left-12"
+    >
+      <a
+        href={product.link}
+        target="_blank"
+        rel="noopener noreferrer"
+        className={`group relative border border-white/10 hover:border-white/30 rounded-2xl backdrop-blur-xl transition-all duration-500 hover:shadow-[0_0_30px_rgba(255,255,255,0.05)] p-3 flex items-center gap-3 bg-[#0a0f1c]/80 hover:-translate-y-1 w-full h-full overflow-hidden`}
+      >
+        <div className="rounded-xl overflow-hidden bg-black/50 border border-white/10 w-9 h-9 flex items-center justify-center shrink-0">
+          <img
+            src={product.icon}
+            alt={`${product.name} Icon`}
+            className="w-full h-full object-cover opacity-90 group-hover:opacity-100 transition-opacity"
+          />
+        </div>
+
+        <div className="flex flex-col flex-1 text-left overflow-hidden">
+          <div className="flex items-center gap-1.5 mb-1">
+            {product.platform && (
+              <span className="px-1.5 py-0.5 rounded text-[8px] font-medium tracking-wider uppercase border border-white/15 text-white/50 bg-white/5">
+                {product.platform}
+              </span>
+            )}
+            <span
+              className={`px-1.5 py-0.5 rounded text-[8px] font-bold tracking-widest uppercase border ${badgeColors}`}
             >
-              {product.shortDescription}
-            </motion.p>
-          )}
-
-          <div
-            className={`flex items-center gap-2 text-[10px] tracking-widest uppercase text-white/60 group-hover:text-white transition-colors mt-2 ${isIntroMode && "border border-white/20 px-6 py-3 rounded-full hover:bg-white/10"}`}
-          >
-            <span>{!isIntroMode ? "View on Store" : product.linkText}</span>
-            <span className="group-hover:translate-x-1 transition-transform">
-              →
+              {product.badge}
             </span>
           </div>
+
+          <h3
+            className={`font-light tracking-tight text-white ${hoverText} transition-colors text-sm leading-tight`}
+          >
+            {product.name}
+          </h3>
+
+          <p className="text-[10px] text-gray-400 font-light leading-relaxed truncate w-full">
+            {product.shortDescription}
+          </p>
         </div>
-      </motion.a>
-    </motion.div>
+      </a>
+    </div>
   );
 };
 
