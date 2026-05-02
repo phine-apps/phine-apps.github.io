@@ -11,11 +11,31 @@ import {
 // --- Product Data Configuration ---
 const PRODUCTS = [
   {
+    id: "markdown_link_assistant",
+    name: "Markdown Link Assistant",
+    icon: "/markdown_link_assistant.png",
+
+    badge: "NEW RELEASE",
+    badgeType: "emerald",
+    platform: "VS Code Extension",
+    description: (
+      <>
+        The ultimate link manager for Markdown.
+        <br />
+        Effortless unfurling, Notion-like cards, AI summaries, and instant
+        previews.
+      </>
+    ),
+    shortDescription: "The ultimate link manager for Markdown.",
+    link: "https://marketplace.visualstudio.com/items?itemName=phine-apps.markdown-link-assistant",
+    linkText: "Get it on VS Code Marketplace",
+  },
+  {
     id: "rich_markdown_diff",
     name: "Rich Markdown Diff",
     icon: "/rich_markdown_diff_icon.png",
 
-    badge: "New Release",
+    badge: "Now Available",
     badgeType: "violet",
     platform: "VS Code Extension",
     description: (
@@ -293,7 +313,7 @@ const ProductShowcase = ({ isActive, product, index }) => {
   const cardHeight = 76;
   const cardGap = 10;
   const baseBottom = 48;
-  const dockedBottom = baseBottom + index * (cardHeight + cardGap);
+  const dockedBottom = baseBottom + (PRODUCTS.length - 1 - index) * (cardHeight + cardGap);
   const zIndex = isIntroMode ? 70 : 60 - index;
 
   // --- Fullscreen intro mode ---
